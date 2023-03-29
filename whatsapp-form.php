@@ -151,20 +151,31 @@ function whatsapp_form_edit_page_shortcode() {
 }
 
 function whatsapp_form_handler() {
-    if ( isset( $_POST['whatsapp_form_action'] ) ) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'whatsapp_form_submissions';
-        $id = intval( $_POST['whatsapp_form_id'] );
-        if ( $_POST['whatsapp_form_action'] === 'edit' ) {
-            // Redirect to the edit page with the ID of the submission to be edited
-            wp_redirect( add_query_arg( array( 'page' => 'whatsapp_form_edit_page', 'id' => $id ), admin_url( 'admin.php' ) ) );
-            exit;
-        } elseif ( $_POST['whatsapp_form_action'] === 'delete' ) {
-            // Delete the submission with the given ID
-            $wpdb->delete( $table_name, array( 'id' => $id ) );
-        }
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'whatsapp_form_submissions';
+
+    $action = $_POST['whatsapp_form_action'];
+    $id = $_POST['whatsapp_form_id'];
+
+    if ( $action == 'delete' ) {
+        $wpdb->delete( $table_name, array( 'id' => $id ) );
+    } elseif ( $action == 'edit' ) {
+        $name = sanitize_text_field( $_POST['name'] );
+        $phone = sanitize_text_field( $_POST['phone'] );
+        $message = sanitize_text_field( $_POST['message'] );
+
+        $wpdb->update(
+            $table_name,
+            array(
+                'name' => $name,
+                'phone' => $phone,
+                'message' => $message
+            ),
+            array( 'id' => $id )
+        );
     }
 }
+
 
 // Edit Database
 function whatsapp_form_submissions_page() {
