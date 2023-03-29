@@ -144,4 +144,78 @@ function whatsapp_form_edit_page_shortcode() {
     include plugin_dir_path( __FILE__ ) . 'edit-page.php';
     return ob_get_clean();
 }
+
+// Handle form submission
+function whatsapp_form_handler() {
+    if ( isset( $_POST['whatsapp_form_action'] ) ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'whatsapp_form_submissions';
+        $id = intval( $_POST['whatsapp_form_id'] );
+        if ( $_POST['whatsapp_form_action'] === 'edit' ) {
+            // Redirect to the edit page with the ID of the submission to be edited
+            wp_redirect( add_query_arg( array( 'page' => 'whatsapp_form_edit_page', 'id' => $id ), admin_url( 'admin.php' ) ) );
+            exit;
+        } elseif ( $_POST['whatsapp_form_action'] === 'delete' ) {
+            // Delete the submission with the given ID
+            $wpdb->delete( $table_name, array( 'id' => $id ) );
+        }
+    }
+}
+
+// Edit Database
+function whatsapp_form_submissions_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'whatsapp_form_submissions';
+
+    // Handle form submission
+    whatsapp_form_handler();
+
+    // Fetch all form submissions from database
+    $submissions = $wpdb->get_results( "SELECT * FROM $table_name" );
+
+    ?>
+    <div class="wrap">
+        <h1>WhatsApp Form Submissions</h1>
+
+        <table class="widefat">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $submissions as $submission ) { ?>
+                    <tr>
+                        <td><?php echo $submission->name; ?></td>
+                        <td><?php echo $submission->phone; ?></td>
+                        <td><?php echo $submission->message; ?></td>
+                        <td><?php echo $submission->date; ?></td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="whatsapp_form_action" value="edit">
+                                <input type="hidden" name="whatsapp_form_id" value="<?php echo $submission->id; ?>">
+                                <button type="submit" class="button button-primary">Edit</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="whatsapp_form_action" value="delete">
+                                <input type="hidden" name="whatsapp_form_id" value="<?php echo $submission->id; ?>">
+                                <button type="submit" class="button button-secondary">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
+
+
 ?>
