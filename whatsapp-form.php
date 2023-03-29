@@ -181,56 +181,42 @@ function whatsapp_form_handler() {
 function whatsapp_form_submissions_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'whatsapp_form_submissions';
-
-    // Handle form submission
-    whatsapp_form_handler();
-
-    // Fetch all form submissions from database
-    $submissions = $wpdb->get_results( "SELECT * FROM $table_name" );
-
+    $submissions = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY id DESC" );
     ?>
     <div class="wrap">
-        <h1>WhatsApp Form Submissions</h1>
-
-        <table class="widefat">
+        <h1>Form Submissions</h1>
+        <table class="wp-list-table widefat striped">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Phone</th>
                     <th>Message</th>
                     <th>Date</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ( $submissions as $submission ) { ?>
+                <?php foreach ( $submissions as $submission ) : ?>
                     <tr>
                         <td><?php echo $submission->name; ?></td>
                         <td><?php echo $submission->phone; ?></td>
                         <td><?php echo $submission->message; ?></td>
-                        <td><?php echo $submission->date; ?></td>
-                        <td>
-                            <form method="post">
-                                <input type="hidden" name="whatsapp_form_action" value="edit">
-                                <input type="hidden" name="whatsapp_form_id" value="<?php echo $submission->id; ?>">
-                                <button type="submit" class="button button-primary">Edit</button>
-                            </form>
-                        </td>
+                        <td><?php echo date( 'Y-m-d H:i:s', strtotime( $submission->date ) ); ?></td>
                         <td>
                             <form method="post">
                                 <input type="hidden" name="whatsapp_form_action" value="delete">
                                 <input type="hidden" name="whatsapp_form_id" value="<?php echo $submission->id; ?>">
-                                <button type="submit" class="button button-secondary">Delete</button>
+                                <?php wp_nonce_field( 'whatsapp_form_delete_submission' ); ?>
+                                <button type="submit" class="button-link delete">Delete</button>
                             </form>
+                            <a href="<?php echo admin_url( 'admin.php?page=whatsapp_form_edit&id=' . $submission->id ); ?>" class="button-link">Edit</a>
                         </td>
                     </tr>
-                <?php } ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
     <?php
 }
-
 
 ?>
