@@ -146,6 +146,10 @@ function whatsapp_form_edit_page_shortcode() {
 }
 
 // Handle form submission
+	if ( isset( $_POST['whatsapp_form_action'] ) ) {
+    whatsapp_form_handler();
+}
+
 function whatsapp_form_handler() {
     if ( isset( $_POST['whatsapp_form_action'] ) ) {
         global $wpdb;
