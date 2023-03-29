@@ -135,4 +135,13 @@ function whatsapp_form_enqueue_styles() {
     wp_enqueue_style( 'whatsapp-form-style', plugin_dir_url( __FILE__ ) . 'style.min.css' );
 }
 add_action( 'wp_enqueue_scripts', 'whatsapp_form_enqueue_styles' );
+
+// Edit Databaase
+add_shortcode( 'whatsapp_form_edit_page', 'whatsapp_form_edit_page_shortcode' );
+
+function whatsapp_form_edit_page_shortcode() {
+    ob_start();
+    include plugin_dir_path( __FILE__ ) . 'edit-page.php';
+    return ob_get_clean();
+}
 ?>
